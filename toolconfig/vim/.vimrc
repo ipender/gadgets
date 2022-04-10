@@ -1,3 +1,6 @@
+" 安装 vim 插件管理器
+"curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+
 inoremap jj <Esc>`^ "将esc键映射为jj键，jj键很少连续出现
 "nnoremap <space> @=((foldclosed(line('.')) < 0) ? 'zc' : 'zo')<CR> "用空格键来开关折叠
 
@@ -81,3 +84,21 @@ set termencoding=utf-8
 set formatoptions+=mM
 set fencs=utf-8,gbk
 :endif
+
+"插件管理部分
+" Specify a directory for plugins
+" - For Neovim: ~/.local/share/nvim/plugged
+" - Avoid using standard Vim directory names like 'plugin'
+call plug#begin('~/.vim/plugged')
+
+Plug 'Yggdroot/indentLine'
+Plug 'scrooloose/nerdtree'
+Plug 'connorholyday/vim-snazzy'
+Plug 'Xuyuanp/nerdtree-git-plugin'
+Plug 'vimwiki/vimwiki'
+Plug 'godlygeek/tabular'
+Plug 'nathanaelkane/vim-indent-guides'
+
+" Initialize plugin system
+call plug#end()
+"插件结束部分
