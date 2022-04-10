@@ -1,4 +1,4 @@
-package files
+package main
 
 /*
 Serve is a very simple static file server in go
@@ -10,10 +10,16 @@ listing file.
 */
 import (
 	"flag"
+	"io"
 	"log"
 	"net/http"
 
 	auth "github.com/abbot/go-http-auth"
+	"golang.org/x/crypto/bcrypt"
+)
+
+const (
+	link = `<link rel="stylesheet" href="/path/to/style.css">`
 )
 
 func main() {
@@ -29,12 +35,20 @@ func main() {
 	log.Fatal(http.ListenAndServe(":"+*port, nil))
 }
 
+func HashPassword(password []byte, cost int) (hash []byte, err error) {
+	return bcrypt.GenerateFromPassword(password, cost)
+	// if err != nil {
+	// 	log.Fatalf("generate password hashing failed, err=%v\n", err)
+	// }
+}
+
 func genFileServer(dir string, prefix string) http.HandlerFunc {
 	fileServer := http.FileServer(http.Dir(dir))
 	fileHandler := http.StripPrefix("/static/", fileServer)
 
 	return func(writer http.ResponseWriter, req *http.Request) {
 		fileHandler.ServeHTTP(writer, req)
+		io.WriteString(writer, link)
 	}
 }
 
@@ -49,4 +63,20 @@ func Secret(user, realm string) string {
 		return a
 	}
 	return ""
+}
+
+type decoratorForHTTPAuth struct {
+	realm        string
+	userName     string
+	passwordHash []byte
+
+	handler http.Handler
+}
+
+func (a *decoratorForHTTPAuth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	a.handler.ServeHTTP(w, r)
+}
+
+func (a *decoratorForHTTPAuth) RequireBasicAuth(w http.ResponseWriter, r *http.Request) {
+	w.Header().Write()
 }
